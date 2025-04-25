@@ -1,114 +1,107 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
-function QuestionForm({ onSubmit, onCancel }) {
+function QuestionForm(props) {
   const [formData, setFormData] = useState({
-    prompt: '',
-    answers: ['', '', '', ''],
+    prompt: "",
+    answer1: "",
+    answer2: "",
+    answer3: "",
+    answer4: "",
     correctIndex: 0,
   });
 
-  // Handle input changes
-  const handleInputChange = (e, index) => {
-    const { name, value } = e.target;
-    if (name === 'answers') {
-      const newAnswers = [...formData.answers];
-      newAnswers[index] = value;
-      setFormData({ ...formData, answers: newAnswers });
-    } else {
-      setFormData({ ...formData, [name]: value });
-    }
-  };
-
-  // Handle form submission
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Basic validation
-    if (!formData.prompt.trim() || formData.answers.some((ans) => !ans.trim())) {
-      alert('Please fill out all fields.');
-      return;
-    }
-    const newQuestion = {
-      prompt: formData.prompt,
-      answers: formData.answers,
-      correctIndex: parseInt(formData.correctIndex),
-    };
-    onSubmit(newQuestion);
+  function handleChange(event) {
     setFormData({
-      prompt: '',
-      answers: ['', '', '', ''],
-      correctIndex: 0,
+      ...formData,
+      [event.target.name]: event.target.value,
     });
-  };
+  }
+
+  function handleSubmit(event) {
+    event.preventDefault();
+    fetch("http://localhost:4000/questions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        prompt: formData.prompt,
+        answers: [
+          formData.answer1,
+          formData.answer2,
+          formData.answer3,
+          formData.answer4,
+        ],
+        correctIndex: parseInt(formData.correctIndex),
+      }),
+    });
+  }
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-lg mb-8">
-      <h2 className="text-xl font-semibold mb-4">Create New Question</h2>
+    <section>
+      <h1>Add New Question</h1>
       <form onSubmit={handleSubmit}>
-        <div className="mb-4">
-          <label htmlFor="prompt" className="block mb-2 font-medium text-gray-700">
-            Question Prompt
-          </label>
+        <label>
+          Prompt:
           <input
             type="text"
-            id="prompt"
             name="prompt"
             value={formData.prompt}
-            onChange={handleInputChange}
-            className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
-            required
-            placeholder="Enter your question"
+            onChange={handleChange}
           />
-        </div>
-        <div className="mb-4">
-          <label className="block mb-2 font-medium text-gray-700">Answers</label>
-          {formData.answers.map((answer, index) => (
-            <input
-              key={index}
-              type="text"
-              name="answers"
-              value={answer}
-              onChange={(e) => handleInputChange(e, index)}
-              className="w-full p-2 border rounded-md mb-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-              required
-              placeholder={`Answer ${index + 1}`}
-            />
-          ))}
-        </div>
-        <div className="mb-4">
-          <label htmlFor="correctIndex" className="block mb-2 font-medium text-gray-700">
-            Correct Answer
-          </label>
+        </label>
+        <label>
+          Answer 1:
+          <input
+            type="text"
+            name="answer1"
+            value={formData.answer1}
+            onChange={handleChange}
+          />
+        </label>
+        <label>
+          Answer 2:
+          <input
+            type="text"
+            name="answer2"
+            value={formData.answer2}
+            onChange={handleChange}
+          />
+        </label>
+        <label>
+          Answer 3:
+          <input
+            type="text"
+            name="answer3"
+            value={formData.answer3}
+            onChange={handleChange}
+          />
+        </label>
+        <label>
+          Answer 4:
+          <input
+            type="text"
+            name="answer4"
+            value={formData.answer4}
+            onChange={handleChange}
+          />
+        </label>
+        <label>
+          Correct Answer:
           <select
-            id="correctIndex"
             name="correctIndex"
             value={formData.correctIndex}
-            onChange={handleInputChange}
-            className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            onChange={handleChange}
           >
-            {formData.answers.map((_, index) => (
-              <option key={index} value={index}>
-                Answer {index + 1}
-              </option>
-            ))}
+            <option value="0">{formData.answer1}</option>
+            <option value="1">{formData.answer2}</option>
+            <option value="2">{formData.answer3}</option>
+            <option value="3">{formData.answer4}</option>
           </select>
-        </div>
-        <div className="flex gap-4">
-          <button
-            type="submit"
-            className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
-          >
-            Create Question
-          </button>
-          <button
-            type="button"
-            onClick={onCancel}
-            className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-400"
-          >
-            Cancel
-          </button>
-        </div>
+        </label>
+        <button type="submit">Add Question</button>
       </form>
-    </div>
+    </section>
   );
 }
 
